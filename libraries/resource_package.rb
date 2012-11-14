@@ -25,8 +25,8 @@ class Chef
       def initialize(name, run_context = nil)
         super(name, run_context)
         @resource_name = :pkgin_package
-        @provider      = Chef::Provider::Package::Pkgin
-        @allowed_actions = [ :install, :remove, :upgrade]
+        @provider = Chef::Provider::Package::Pkgin
+        @allowed_actions = [:install, :remove, :upgrade]
       end
     end
   end
