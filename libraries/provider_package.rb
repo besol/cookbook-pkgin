@@ -56,8 +56,10 @@ class Chef
           info = shell_out!("pkg_info -E #{package}", :env => nil, :returns => [0, 1])
 
           unless info.nil? || info.stdout.empty?
-            package_info = info.stdout.split("-")
-            package_version = package_info.pop
+            package_info = package.split("-")
+            if package_info.last.include?(".")
+              package_version =  package_info.pop
+            end
             package_name = package_info.join("-")
           end
 
@@ -68,8 +70,7 @@ class Chef
           end
 
           # see whats available - set candidate_version
-          available_info = shell_out!("pkgin avail | grep ^#{package}-[0-9] | awk '{ print $1 }'", :env => nil, :returns => [0, 1])
-
+          available_info = shell_out!("pkgin avail | grep ^#{package} | head -n 1  | awk '{ print $1 }'", :env => nil, :returns => [0, 1])
           unless available_info.nil? || available_info.stdout.empty?
             candidate_info = available_info.stdout.split(/\r?\n/).last.split("-")
             candidate_version = candidate_info.pop
@@ -84,6 +85,11 @@ class Chef
         end
 
         def install_package(name, version)
+          full_package_name = name.split("-")
+          if full_package_name.last.include?(".")
+            full_package_name.pop
+            name = full_package_name.join("-")
+          end
           full_package_name = "#{name}-#{version}"
           shell_out!("pkgin -y install #{full_package_name}", :env => nil)
         end
